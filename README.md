@@ -6,6 +6,6 @@
 > 参考书：
 >
 > - [Docker -- 从入门到实践](https://yeasy.gitbooks.io/docker_practice/)
-> - [第一本Docker书（修订版）](./ebooks/第一本DOCKER书 修订版.pdf)
+> - [第一本Docker书（修订版）](https://raw.githubusercontent.com/hustrlee/docker-quick-start/master/ebooks/%E7%AC%AC%E4%B8%80%E6%9C%ACDOCKER%E4%B9%A6%20%E4%BF%AE%E8%AE%A2%E7%89%88.pdf)
 > - [Docker 官方文档（英语）](https://docs.docker.com/)
 
