@@ -1,0 +1,10 @@
+{
+  "name": "apiSrv",
+  "script": "index.js",
+  "instances": 2,
+  "cwd": "/src/api",
+  "watch": true,
+  "watch_options": {
+    "usePolling": true
+  }
+}

@@ -1,0 +1,40 @@
+version: "3"
+
+services:
+  mysql:
+    image: mysql:5
+    networks:
+      simple-app:
+        aliases: 
+          - db
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    networks:
+      - simple-app
+    environment: 
+      - PMA_HOST=db
+    ports:
+      - 9000:80
+
+  pm2:
+    image: keymetrics/pm2:latest-alpine
+    networks: 
+      simple-app:
+        aliases:
+          - apiSrv
+    volumes:
+      - ./service/pm2.json:/pm2.json
+      - ./service:/src
+    expose: 
+      - "3000"
+    ports: 
+      - "3000:3000"
+    command: 
+      
+networks:
+  simple-app:

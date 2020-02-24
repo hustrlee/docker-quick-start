@@ -429,6 +429,69 @@ networks:
 
 ## 5. 实战
 
+**任务：**部署一个前后端分离的系统，前端使用 vue-ui，后端使用 node，数据库为 MySQL，并部署 phpMyAdmin 来操作 MySQL。
+
+**系统功能：**数据库中存有 `users` 表，前端调用 node 服务，实现对 `users` 表的搜索功能。
+
+**源码目录：**./src
+
+### 5.1 Step 1：构建 PM2 自动部署环境
+
+PM2 是守护进程（daemon）管理器，它帮助 node 开发者管理和保持应用程序在线。我们使用 PM2 Docker image 构建一个自动部署 node 应用的环境。
+
+配置文件 step1/docker-compose.yml：
+
+```yaml
+version: "3"
+services:
+  pm2:
+    image: keymetrics/pm2:latest-alpine
+    volumes:
+      - ./:/src
+    expose: 
+      - "3000"
+    ports: 
+      - "3000:3000"
+    command: ["pm2-runtime", "start", "/src/api/pm2.json"]
+```
+
+- `image: keymetrics/pm2:latest-alpine`：使用 PM2 官方镜像。
+  - PM2 官方镜像针对不同版本的 node 有多个镜像，latest 对应了 node 13。
+  - `latest-alpine` 是基于 alpine linux 构建的镜像，alpine 是一个面向安全的轻型 Linux 发行版本，基于 alpine 构建的镜像远远小于基于 Ubuntu 或 Debian 构建的镜像。
+- `volumes`：将当前目录映射到容器的 `/src` 目录。
+  - 当编辑当前目录中的源码时，容器内的代码也同时被修改。
+- `expose`：公开 3000 端口。
+  - 在构建 pm2 容器时，只公开了 80、443、43554 端口，为了让 node 应用被外部访问，需要公开 3000 端口。
+- `ports`：将容器的 3000 端口映射到宿主机的 3000 端口。
+  - 开发阶段，为了方便测试，将 api 端口公开给宿主机。
+- `command: ["pm2-runtime", "start", "/src/api/pm2.json"]`：覆盖容器自动启动命令。
+  - 注意！由于容器的 `/src` 目录被映射到当前目录，因此修改宿主机上的 `./api/pm2.json` 文件，就可以改变容器的启动配置。
+  - PM2 可以使用 ecosystem file 来定义启动配置，完整的配置说明参见[PM2 - Ecosystem File](https://pm2.keymetrics.io/docs/usage/application-declaration/)。
+
+Ecosystem file - step1/api/pm2.json：
+
+```json
+{
+  "name": "apiSrv",
+  "script": "index.js",
+  "instances": 1,
+  "cwd": "/src/api",
+  "watch": true,
+  "watch_options": {
+    "usePolling": true
+  }
+}
+```
+
+- `"name": "apiSrv"`：应用的名称为 `apiSrv`。
+- `"script": "index.js"`：启动脚本为 `index.js`。
+- `"instances": 1`：启动 1 个实例。PM2 自带集群（cluster），可以启动多个实例构成集群，提高服务性能。
+- `"cwd": "/src/api"`：指定工作目录为 `/src/api`，因此启动脚本的完整路径为 `/src/api/index.js`。
+- `"watch": true`：监视工作目录，当工作目录中文件发生改变时，自动重启服务。结合 `"cwd"` 参数，当容器 `/src/api` 目录中文件，也就是宿主机 `./api` 目录中文件发生改变时，将自动重启服务。从而实现了当源码发生改变时，引发自动发布的功能。
+- `"usePolling": true`：容器化的 PM2 无法通过 fsevents 来监视文件的变化，需要使用 polling（轮询）方法。不过，polling 方法比较消耗 CPU 资源，在开发阶段可以这么用，部署的时候，应不使用 watch 功能。
+
+### 5.2 Step 2：构建 Vue 自动部署环境
+
 
 
 ### 3.5 覆盖自动启动命令

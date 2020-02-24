@@ -1,0 +1,7 @@
+{
+  "name": "apiSrv",
+  "script": "index.js",
+  "instances": 1,
+  "cwd": "/src/",
+  "watch": true
+}
