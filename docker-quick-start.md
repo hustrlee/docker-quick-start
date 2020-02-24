@@ -1,47 +1,47 @@
-# docker 快速入门指南
+# Docker 快速入门指南
 
 [TOC]
 
 ## 0. 简介
 
-本文档不是一篇 docker 的完全手册，而更倾向于任务驱动型的快速指南 + 简单的原理解说，旨在帮助入门用户快速建立 docker 的基本概念、使用逻辑、解决常用问题、并具备一定的自主分析的能力。
+本文档不是一篇 Docker 的完全手册，而更倾向于任务驱动型的快速指南 + 简单的原理解说，旨在帮助入门用户快速建立 Docker 的基本概念、使用逻辑、解决常用问题、并具备一定的自主分析的能力。
 
-本文档不能取代规范、全面的学习，以下几本参考书比较完整的介绍了 docker 的使用。
+本文档不能取代规范、全面的学习，以下几本参考书比较完整的介绍了 Docker 的使用。
 
 > 参考书：
 >
-> - [Docker -- 从入门到实践](https://yeasy.gitbooks.io/docker_practice/)
-> - [第一本Docker书（修订版）](./第一本DOCKER书 修订版.pdf)
-> - [Docker 官方文档（英语）](https://docs.docker.com/)
+> - [Docker -- 从入门到实践](https://yeasy.gitbooks.io/Docker_practice/)
+> - [第一本Docker书（修订版）](./ebooks/第一本Docker书 修订版.pdf)
+> - [Docker 官方文档（英语）](https://docs.Docker.com/)
 
 
 
-## 1. docker是什么？
+## 1. Docker是什么？
 
 从官方文档到各种教程都没有给 Docker 一个精确的定义。大家分别从 Docker 的发展历史、Docker 的应用范围、Docker 和 VM（虚拟机）之间的对比等几个方面来**描述** Docker，但从来没有精确地定义过 Docker。
 
 从一个 Docker 使用者（应用开发人员、运维人员）的角度来看，需要从以下几个方面来理解它：
 
-### 1.1 docker 和 VM（虚拟机）
+### 1.1 Docker 和 VM（虚拟机）
 
-- docker 从行为上非常类似于 VM，它们都是运行在宿主机上相互隔离的独立空间中；
+- Docker 从行为上非常类似于 VM，它们都是运行在宿主机上相互隔离的独立空间中；
 
-- 在使用上 docker 和 VM也非常类似，都用于**部署**独立运行的“程序”（更精确的说法是：进程），这些“程序”相互隔离，也与宿主机隔离，各自拥有自己的运行环境（如：环境变量、软件环境等）。
+- 在使用上 Docker 和 VM也非常类似，都用于**部署**独立运行的“程序”（更精确的说法是：进程），这些“程序”相互隔离，也与宿主机隔离，各自拥有自己的运行环境（如：环境变量、软件环境等）。
 
-但是，docker 和 VM 有着本质上的不同。下面这张图，完美解释了 docker 和 VM 之间的区别：
+但是，Docker 和 VM 有着本质上的不同。下面这张图，完美解释了 Docker 和 VM 之间的区别：
 
-![docker与虚拟机的区别](./images/difference-between-docker-and-vm.png)
+![Docker与虚拟机的区别](./images/difference-between-Docker-and-vm.png)
 
-- docker 是操作系统虚拟化；VM 是硬件虚拟化。
-- docker 虚拟化出来的操作系统和宿主机相同；VM 在虚拟硬件上可以安装任何操作系统。
-  - 由于 docker 是在 Linux 容器化技术上发展而来的，因此早期只能是 Linux。无论是 Windows 还是 macOS，都是先安装了一个 Linux 虚拟机，然后在这个虚拟机上安装 docker ，因此 docker 中的操作系统只能是 Linux。
+- Docker 是操作系统虚拟化；VM 是硬件虚拟化。
+- Docker 虚拟化出来的操作系统和宿主机相同；VM 在虚拟硬件上可以安装任何操作系统。
+  - 由于 Docker 是在 Linux 容器化技术上发展而来的，因此早期只能是 Linux。无论是 Windows 还是 macOS，都是先安装了一个 Linux 虚拟机，然后在这个虚拟机上安装 Docker ，因此 Docker 中的操作系统只能是 Linux。
   - 随着 Microsoft 发布了 windows 容器（windows 10 内置），我们也可以使用 windows 原生容器来运行 windows 应用。
-- docker 的启动要比 VM 快得多，而且消耗的资源要小得多。
-- docker 的性能更好，接近原生系统的性能。
+- Docker 的启动要比 VM 快得多，而且消耗的资源要小得多。
+- Docker 的性能更好，接近原生系统的性能。
 
-### 1.2 docker 的使用范围
+### 1.2 Docker 的使用范围
 
-初次接触 docker，不免产生这样的疑问：VM 可以让我们在 windows 上运行 Linux，在 macOS 上运行 windows；而 docker 只能在 Linux 上运行 Linux，这有什么用处呢？
+初次接触 Docker，不免产生这样的疑问：VM 可以让我们在 windows 上运行 Linux，在 macOS 上运行 windows；而 Docker 只能在 Linux 上运行 Linux，这有什么用处呢？
 
 #### 1.2.1 快速、一致、可靠地部署软件
 
@@ -52,10 +52,10 @@ Linux 以灵活性著称，它保持了高度的可定制性。但是，灵活�
 - 安装没有预编译版本的软件，配置编译环境就是一件让 Linux 专家也不愿意做的事儿。
 - ......
 
-**docker 解决方案：**
+**Docker 解决方案：**
 
-- 在 docker 的世界里，只需要成功安装一次，就可以生成一个镜像，可以把安装镜像拷贝到任意机器中，只需运行该镜像就可以了，无须重复部署。
-- 在 docker 的世界里，有一个名为：https://hub.docker.com 的公共镜像仓库，无数人为它提供软件镜像，大多数软件，无须安装，只需要下载改镜像，并运行就可以了。
+- 在 Docker 的世界里，只需要成功安装一次，就可以生成一个镜像，可以把安装镜像拷贝到任意机器中，只需运行该镜像就可以了，无须重复部署。
+- 在 Docker 的世界里，有一个名为：https://hub.docker.com 的公共镜像仓库，无数人为它提供软件镜像，大多数软件，无须安装，只需要下载改镜像，并运行就可以了。
 
 #### 1.2.2 运行环境隔离
 
@@ -63,22 +63,22 @@ Linux 以灵活性著称，它保持了高度的可定制性。但是，灵活�
 
 虽然各个软件为版本升级、迁移，都提出类似的解决方案，例如：python 用 anaconda、node 用 nvm，但是没有一个统一、一致的方法。
 
-**docker 解决方案：**
+**Docker 解决方案：**
 
-- 在 docker 的世界里，这个问题变得非常简单，为每个软件运行一个独立的 docker 容器就可以了。由于容器之间是隔离的，可以为每个软件部署独立的软件运行环境。
+- 在 Docker 的世界里，这个问题变得非常简单，为每个软件运行一个独立的 Docker 容器就可以了。由于容器之间是隔离的，可以为每个软件部署独立的软件运行环境。
 
-#### 1.2.3 使用 docker 后的软件部署架构
+#### 1.2.3 使用 Docker 后的软件部署架构
 
 以一个前后端分离的软件系统为例，前端为：vue-ui，后端为：node + koa、spring boot，使用了 mysql、redis 数据库，并使用了 mqtt 消息队列服务的系统，其部署结构可能如下图所示：
 
-![docker 软件部署结构](./images/containerized-software-deployment.png)
+![Docker 软件部署结构](./images/containerized-software-deployment.png)
 
 - 上图列出的所有容器均有官方镜像
   - vue 运行环境可以使用 nginx 官方镜像，或者直接加载在 envoy 容器中
   - node 运行环境可以使用 PM2 官方镜像
   - java 运行环境可以使用 tomcat 官方镜像
 
-- 使用 docker-compose 编写部署脚本，一条命令部署系统，非常方便研发团队统一开发环境，测试团队建立测试环境、以及实施团队部署到客户环境。
+- 使用 Docker-compose 编写部署脚本，一条命令部署系统，非常方便研发团队统一开发环境，测试团队建立测试环境、以及实施团队部署到客户环境。
 
 ### 1.3 术语
 
@@ -87,7 +87,7 @@ Linux 以灵活性著称，它保持了高度的可定制性。但是，灵活�
   - 从软件使用者角度来看，它类似于可执行文件，包含了软件执行所需的代码、数据、配置等。
   - 从软件开发者的角度来看，它类似于类定义。
   - 从 VM 使用者角度来看，它和 VM 镜像的作用是相同的，但是存取原理不一样。
-  - docker 镜像是一个特殊的文件系统，由 docker 命令进行管理，用户并不能直接访问该文件系统。
+  - Docker 镜像是一个特殊的文件系统，由 Docker 命令进行管理，用户并不能直接访问该文件系统。
 - **容器（container）：**
   - 容器是镜像运行时的实体（实例）。
   - 容器可以被创建、启动、停止、删除、暂停等。
@@ -99,19 +99,19 @@ Linux 以灵活性著称，它保持了高度的可定制性。但是，灵活�
 
 
 
-## 2. 安装、配置 docker
+## 2. 安装、配置 Docker
 
-### 2.1 安装 docker
+### 2.1 安装 Docker
 
-docker 安装很简单，可以参考[官方安装指南](https://docs.docker.com/get-docker/)。
+Docker 安装很简单，可以参考[官方安装指南](https://docs.Docker.com/get-Docker/)。
 
-#### 2.1.1 insight docker installation
+#### 2.1.1 insight Docker installation
 
-- docker 从起源上来说是基于 Linux 的容器化技术发展而来的，因此，在 Linux 上安装 docker 是原生的。ubuntu 可以通过添加官方软件源来安装 docker。
-- 在 windows、macOS 上通过 `Docker Desktop for Windows/Mac` 来安装 docker。该安装程序先安装 Linux 虚拟机，然后在虚拟机上安装 Linux 原生 docker，最后安装 desktop 应用来操控虚拟机中的 docker。
-- windows 上安装 docker 又复杂一些
-  - docker desktop for windows 上使用 Hyper-V 虚拟机，必须硬件开启 Hyper-V。
-  - macOS Boot Camp 不支持 Hyper-V，无法成功安装启动 docker desktop for windows。
+- Docker 从起源上来说是基于 Linux 的容器化技术发展而来的，因此，在 Linux 上安装 Docker 是原生的。ubuntu 可以通过添加官方软件源来安装 Docker。
+- 在 windows、macOS 上通过 `Docker Desktop for Windows/Mac` 来安装 Docker。该安装程序先安装 Linux 虚拟机，然后在虚拟机上安装 Linux 原生 Docker，最后安装 desktop 应用来操控虚拟机中的 Docker。
+- windows 上安装 Docker 又复杂一些
+  - Docker desktop for windows 上使用 Hyper-V 虚拟机，必须硬件开启 Hyper-V。
+  - macOS Boot Camp 不支持 Hyper-V，无法成功安装启动 Docker desktop for windows。
   - windows 10 (1607) 或 windows server 2016 以上版本，可以切换到 windows 容器，来运行 windows 应用。
   - windows 容器比较新，相关的应用镜像也很少，基本上需要靠自己来构建镜像。
 
@@ -120,11 +120,11 @@ docker 安装很简单，可以参考[官方安装指南](https://docs.docker.co
 #### 2.2.1 术语
 
 - **registry：**为了方便大家共享镜像仓库，需要建立一个存储、管理、查找、下载镜像的服务，这个服务称之为 registry，类似于 github 之于 git。
-- **Docker Registry：**docker 官方的 registry，地址为 https://hub.docker.com
+- **Docker Registry：**Docker 官方的 registry，地址为 https://hub.docker.com
 
 #### 2.2.2 Docker Registry Mirror
 
-Docker Registry 在国内访问非常慢，可以通过使用国内镜像来进行加速。docker 官方、Microsoft azure 云、网易云、有道云、七牛云均提供镜像服务。
+Docker Registry 在国内访问非常慢，可以通过使用国内镜像来进行加速。Docker 官方、Microsoft azure 云、网易云、有道云、七牛云均提供镜像服务。
 
 推荐使用：
 
@@ -149,7 +149,7 @@ Docker Registry 在国内访问非常慢，可以通过使用国内镜像来进�
 到 https://hub.docker.com 去搜索 MySQL 镜像。
 
 - 除了官方镜像（Offical Image）外，还有很多其它组织、个人提供的定制镜像，当然官方镜像是最可靠的。在搜索结果的右上角，标明了是否是 Offical Image。
-- 镜像仓库中包括了多个版本的镜像，在 docker 中称之为 `tag`。在 `Tags` 标签下，可以浏览仓库里所有的镜像版本。
+- 镜像仓库中包括了多个版本的镜像，在 Docker 中称之为 `tag`。在 `Tags` 标签下，可以浏览仓库里所有的镜像版本。
 - 使用 `<仓库名>:<tag>` 来唯一标记某个镜像，例如：`mysql:5.7` 是 mysql 5.7 版镜像。
 - `tag` 标记了一个镜像，而一个镜像可以对应多个 `tag`，它们并不是一一对应的关系。例如：`mysql:5.7` 和 `mysql:5` 是同一个镜像。
 - `DIGEST` 和镜像之间是一一对应关系，它位于镜像信息的左下角。
@@ -196,7 +196,7 @@ b132028b32e9        mysql:5.7           "docker-entrypoint.s…"   7 minutes ago
 
 - `CONTAINER ID - b132028b32e9`：容器 ID，全局唯一，可以通过 ID 来操控该容器。和 git 类似，一般来说，ID 的前 2 - 4 位就足以唯一确定这个容器了，因此在引用该容器时，只需要前 2 - 4 位就可以了。
 - `IMAGE - mysql:5.7`：生成该容器的镜像名。
-- `COMMAND - "docker-entrypoint.s..."`：该容器执行的命令，详见“insight docker run”。
+- `COMMAND - "docker-entrypoint.s..."`：该容器执行的命令，详见“insight Docker run”。
 - `CREATED - 7 minutes ago`：容器创建时间。
 - `STATUS - Up 7 minutes`：容器当前状态，`Up` 表示该容器在后台运行；`Exit` 表示该容器已经退出。
 - `PORTS - 3306/tcp, 33060/tcp`：容器使用的端口。
@@ -204,7 +204,7 @@ b132028b32e9        mysql:5.7           "docker-entrypoint.s…"   7 minutes ago
 
 #### 3.3.2 insight `docker run`
 
-docker 镜像可以视为”一个应用软件及其运行环境的集合“；而运行一个 docker 镜像可以视为”在一个隔离的进程中运行该应用软件及其依赖软件包“。因此，镜像通常会指定在开始运行时自动启动的应用软件，就像操作系统启动时，会自动启动某些应用程序一样。可以通过 docker 命令 `history` 或 `inspect` 来查看容器到底启动了什么应用软件。
+Docker 镜像可以视为”一个应用软件及其运行环境的集合“；而运行一个 Docker 镜像可以视为”在一个隔离的进程中运行该应用软件及其依赖软件包“。因此，镜像通常会指定在开始运行时自动启动的应用软件，就像操作系统启动时，会自动启动某些应用程序一样。可以通过 Docker 命令 `history` 或 `inspect` 来查看容器到底启动了什么应用软件。
 
 ```bash
 $ docker history mysql:5.7
@@ -212,7 +212,7 @@ IMAGE               CREATED             CREATED BY                              
 d5cea958d330        2 days ago          /bin/sh -c #(nop)  CMD ["mysqld"]               0B
 <missing>           2 days ago          /bin/sh -c #(nop)  EXPOSE 3306 33060            0B
 <missing>           2 days ago          /bin/sh -c #(nop)  ENTRYPOINT ["docker-entry…   0B
-<missing>           2 days ago          /bin/sh -c ln -s usr/local/bin/docker-entryp…   34B
+<missing>           2 days ago          /bin/sh -c ln -s usr/local/bin/Docker-entryp…   34B
 <missing>           2 days ago          /bin/sh -c #(nop) COPY file:3f9ea5eebe1c6044…   12.8kB
 <missing>           2 days ago          /bin/sh -c #(nop)  VOLUME [/var/lib/mysql]      0B
 <missing>           2 days ago          /bin/sh -c {   echo mysql-community-server m…   320MB
@@ -221,7 +221,7 @@ d5cea958d330        2 days ago          /bin/sh -c #(nop)  CMD ["mysqld"]       
 <missing>           2 days ago          /bin/sh -c #(nop)  ENV MYSQL_MAJOR=5.7          0B
 <missing>           2 days ago          /bin/sh -c set -ex;  key='A4A9406876FCBD3C45…   30.2kB
 <missing>           2 days ago          /bin/sh -c apt-get update && apt-get install…   50.2MB
-<missing>           3 weeks ago         /bin/sh -c mkdir /docker-entrypoint-initdb.d    0B
+<missing>           3 weeks ago         /bin/sh -c mkdir /Docker-entrypoint-initdb.d    0B
 <missing>           3 weeks ago         /bin/sh -c set -x  && apt-get update && apt-…   4.44MB
 <missing>           3 weeks ago         /bin/sh -c #(nop)  ENV GOSU_VERSION=1.7         0B
 <missing>           3 weeks ago         /bin/sh -c apt-get update && apt-get install…   10.2MB
@@ -232,11 +232,11 @@ d5cea958d330        2 days ago          /bin/sh -c #(nop)  CMD ["mysqld"]       
 
 - 注意第一行输出：`... CMD ["mysqld"]`，说明该镜像启动时，会自动执行 `mysqld`，也就是 MySQL 服务进程！
 
-- docker 关于自动启动的设计比上述还略微复杂一点，事实上，自动启动命令有两个：第三行输出 `... ENTRYPOINT ["docker-entrypoint.sh"]` 也用于指定自动启动命令。`mysql:5.7` 镜像完整的自动启动命令为：`docker-entrypoint.sh mysqld`。这样的设计是有其特殊目的的，随后的章节我们会继续讨论这个话题。
+- Docker 关于自动启动的设计比上述还略微复杂一点，事实上，自动启动命令有两个：第三行输出 `... ENTRYPOINT ["docker-entrypoint.sh"]` 也用于指定自动启动命令。`mysql:5.7` 镜像完整的自动启动命令为：`docker-entrypoint.sh mysqld`。这样的设计是有其特殊目的的，随后的章节我们会继续讨论这个话题。
 
 #### 3.3.3 映射 MySQL 服务端口
 
-使用 `docker ps -a` 命令可以看到 `some-mysql` 容器打开了两个端口：`3306/tcp, 33060/tcp`，显然这是 `mysqld` 使用的服务端口。但是请注意：该端口是容器内部端口，宿主机是无法直接访问到的（这个论断也不完全正确，这里暂时不讨论 docker network 的相关内容，后面的章节会进一步讨论），因此需要把容器内端口映射到宿主机。
+使用 `docker ps -a` 命令可以看到 `some-mysql` 容器打开了两个端口：`3306/tcp, 33060/tcp`，显然这是 `mysqld` 使用的服务端口。但是请注意：该端口是容器内部端口，宿主机是无法直接访问到的（这个论断也不完全正确，这里暂时不讨论 Docker network 的相关内容，后面的章节会进一步讨论），因此需要把容器内端口映射到宿主机。
 
 ```bash
 $ docker run --name mysql-1 -p 4000:3306 -e MYSQL_ROOT_PASSWORD=root -d mysql:5.7
@@ -269,7 +269,7 @@ $ docker run -p 3306:3306 -e MYSQL_ROOT_PASSWORD=root -v /data/mysql:/var/lib/my
 - `-v /data/mysql:/var/lib/mysql`：将容器内的 `/var/lib/mysql` 目录映射到宿主机上的 `/data/mysql` 目录。由于 MySQL 的数据存储在 `/var/lib/mysql` 目录中，映射后就存储在宿主机的 `/data/mysql` 目录中。
 - 容器停止、删除，均不会影响宿主机上的数据；重新部署容器，可以恢复以前的数据。
 - 宿主机上的数据可以单独备份、恢复和迁移。
-- 请注意：宿主机目录需要赋予容器启动用户读写权限。
+- 请注意：不要手工创建宿主机上的映射目录，手工创建容易发生读写权限问题。但是，必须保证启动用户有创建宿主机映射目录的权限。最简单的方式是：将宿主机映射目录指定在启动用户的用户目录下。
 
 > **“数据持久化”**应用范围很广，不仅仅用于保存用户数据，还常常用于：
 >
@@ -287,19 +287,22 @@ $ docker rm some-mysql mysql-1 # 删除 some-mysql mysql-1 容器
 
 ### 3.5 使用 docker-compose 启动 MySQL
 
-启动容器的参数越来越长，容易发生输入错误或疏漏。`docker-compose` 是 docker 自带的**容器编排工具**，可以通过配置文件来启动一系列容器的工具。
+启动容器的参数越来越长，容易发生输入错误或疏漏。`docker-compose` 是 Docker 自带的**容器编排工具**，可以通过配置文件来启动一系列容器的工具。
 
-> `docker-compose` 的配置文件采用了 `YAML` 格式，完整语法可以参考：[YAML 语言教程 - 阮一峰](https://www.ruanyifeng.com/blog/2016/07/yaml.html)
+> - `docker-compose` 的配置文件采用了 `YAML` 格式，完整语法可以参考：[YAML 语言教程 - 阮一峰](https://www.ruanyifeng.com/blog/2016/07/yaml.html)
+> - 注意！
+>   - YAML 文件使用缩进来表示层级关系，同层级需要对其；上下层级使用缩进。因此，格式非常重要。
+>   - YAML 文件中不允许使用 `Tab`，所有的空白需要使用“空格”
 
 使用 `docker-compose` 启动 MySQL 的配置文件 `mysql.yml`：
 
 ```yaml
-version: '3'  # docker-compose 版本，当然越新越好，目前最新版本为 '3'
+version: "3.7"  # docker-compose 版本，当然越新越好，目前最新版本为 '3.7'
 
 services:     # 服务列表，可以支持启动多个容器
   mysql:      # 以下是 mysql 容器的配置项
     container_name: mysql-1
-    image: mysql:5.7
+    image: "mysql:5.7"
     ports:
       - "3306:3306"
     environment:
@@ -333,9 +336,98 @@ $ docker-compose -f mysql.yml down
 - 如果将容器组部署在多台机器上，容器相互之间的访问就与宿主机的 IP 相关，不能做到透明部署，削弱了部署的一致性和可靠性。
 - 同理，在多台机器上部署容器组，数据持久化也与宿主机环境相关，削弱了部署的一致性和可靠性。
 
-针对以上问题，docker 的解决方案是：引入网络层和数据持久层。也就是说：由 docker 构建透明的网络层和数据持久层，屏蔽 cluster 带来的部署复杂性。docker 的网络层和数据持久层对容器来说，是一个独立、完整的虚拟资源。
+针对以上问题，Docker 的解决方案是：引入网络层和数据持久层。也就是说：由 Docker 构建透明的网络层和数据持久层，屏蔽 cluster 带来的部署复杂性。Docker 的网络层和数据持久层对容器来说，是一个独立、完整的虚拟资源。
 
-### 4.1 网络层
+### 4.1 Docker 网络模型
+
+Docker 网络模型比较简单，但是如果考虑到跨主机网络，则比较复杂。不过，对中小型系统来说，不需要使用复杂的网络模型，使用 `bridge` 网络模型，就可以解决大多数单机部署的问题。
+
+#### 4.1.1 Docker 网络配置
+
+以部署 phpMyAdmin，并将它与 MySQL 连接起来为例：
+
+```bash
+$ docker network create my-admin		# 创建一个名为 my-admin 的网络
+$ docker run --name dbhost --network my-admin -e MYSQL_ROOT_PASSWORD=root -d mysql:5.7
+$ docker run --network my-admin -e PMA_HOST=dbhost -p 8080:80 -d phpmyadmin/phpmyadmin
+```
+
+- 部署后，宿主机不能直接访问 MySQL 服务，只能通过 http://localhost:8080 来访问 phpMyAdmin，间接管理 MySQL。
+- 命令解释：
+  - `--network my-admin`：连接到名为 `my-admin` 的网络。两个容器都连接到同一个 Docker 网络上。
+  - `-e PMA_HOST=dbhost`：将 `phpMyAdmin` 连接到名为 `dbhost` 的主机上。在同一个 Docker 网络上的容器，可以通过容器名相互访问。
+
+> **Tip：**如果 `docker run` 命令引用了没有 `pull` 到本地的镜像，`docker` 会自动 `pull` 它。
+
+#### 4.1.2 insight Docker bridge network
+
+Docker bridge 网络模式为容器创建了独立的网络栈，保证容器内的进程使用独立的网络环境，实现容器之间、容器与宿主机之间的网络栈隔离。同时，通过宿主机上的网桥，容器可以与宿主机乃至外界进行网络通信。
+
+![img](./images/docker-network-bridge.png)
+
+如上图所示，可以这么理解 bridge 网络模式：
+
+- `docker network create my-admin`：Docker 创建了一个“内部局域网”，名为 `my-admin`。
+- “`my-admin`局域网“中有一个名为 `docker0` 的设备，这个设备可以视为是一个"router"，它为连接在“`my-admin`局域网”上的所有容器提供以下服务：
+  - DHCP服务，为每个容器分配 IP 地址。
+  - 名字服务（name service），提供主机名（容器名）和 IP 的解析。
+  - NAT 转发服务及端口映射服务，让容器能和宿主机、外部网络进行相互通信。
+- 对容器而言，它们连接在"`my-admin`局域网"上，通过名字服务使用“主机名”进行相互访问；并通过“router”访问宿主机和外部网络。
+- 对宿主机而言，`docker0` 设备是一个网桥，桥接了宿主机的 `eth0` 网卡和内部的“router”，因此在宿主机无需给 `docker0` 分配 IP 地址，而使用 `eth0` 的 IP 地址。外部网络通过宿主机 IP 及映射到宿主机的 port，就可以访问容器提供的服务。
+
+#### 4.1.3 删除 Docker network
+
+删除容器后，可以删除 network 以释放资源。
+
+```bash
+$ docker network rm my-admin		# 删除名为 my-admin 的网络
+```
+
+更简单的方式是删除所有未使用的 network（没有容器使用的网络）。
+
+```bash
+$ docker network prune
+```
+
+### 4.2  用 docker-compose 启动容器组
+
+使用 docker-compose 能简化容器组的启动，上面的例子用 docker-compose 来部署，配置文件为：
+
+```yaml
+version: "3"
+
+services:
+  mysql:
+    image: "mysql:5.7"
+    networks:
+      my-admin:
+        aliases:
+          - dbhost
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+
+  phpmyadmin:
+    image: "phpmyadmin/phpmyadmin"
+    networks:
+      - my-admin
+    environment:
+      - PMA_HOST=dbhost
+    ports:
+      - "8080:80"
+
+networks:
+  my-admin:
+```
+
+- 这里没有用容器名来指定容器主机名，而是在 `networks` 配置中，用 `aliases` 来指定容器主机名。这种方式更加灵活，可以指定多个 `aliases` 作为容器主机名。
+
+> **Tips：**`docker-compose down` 关闭容器组后，会自动删除所有的资源，包括：容器、网络、数据卷等。
+
+
+
+## 5. 实战
 
 
 
@@ -358,5 +450,5 @@ $ docker run -it --rm mysql:5.7 mysql -h 172.17.0.2 -u root -p
 | `-e env-variable=value`       | 指定环境变量                  |
 | `-d`                          | 在后台运行容器                |
 | `-it`                         | 与容器进行交互                |
-| --rm                          | 当容器退出时，自动删除容器    |
+| `--rm`                        | 当容器退出时，自动删除容器    |
 
