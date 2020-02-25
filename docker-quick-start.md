@@ -324,7 +324,7 @@ $ docker-compose -f mysql.yml down
 
 
 
-## 4. 进阶
+## 4. 进阶 - 部署一组容器
 
 上一节详细描述了如何部署一个容器化服务，从宿主机上访问该服务，并对容器化服务进行数据持久化。
 
@@ -427,7 +427,105 @@ networks:
 
 
 
-## 5. 实战
+## 5. 其它一些需要掌握的命令
+
+### 5.1 覆盖自动启动
+
+有些情况下，并不需要执行镜像指定的自动启动命令，可以由命令行指定用户命令覆盖自动启动命令。
+
+```bash
+$ docker run -it --rm mysql:5.7 mysql -h 172.17.0.2 -u root -p
+```
+
+- `-it`：与容器进行交互，实际上就是接管容器的输入、输出，把后台运行的容器应用带到前台来。
+- `--rm`：容器退出时，自动删除该容器。本例子中：当从 mysql 退出时，自动删除容器。
+- `mysql -h 172.17.0.2 -u root -p`：运行 mysql 命令（mysql 的 CLI 客户端）来取代镜像指定的 mysqld。
+
+### 5.2 和容器内部的 shell 进行交互
+
+有两种方式进入到容器内部：
+
+#### 5.2.1 在启动的时候与容器内部的 shell 进行交互
+
+在启动容器时，跳过镜像指定的自动启动命令（5.1 覆盖自动启动），运行容器内部的 shell，并与之交互。
+
+```bash
+$ docker run -it --rm mysql:5.7 /bin/sh
+```
+
+- 每个镜像（windows 容器镜像除外）都是基于 Linux 的，因此无论哪个镜像都必然有 shell - `/bin/sh`，但是并不一定有 `/bin/bash`。
+
+- **用途：**这个用法的用处并不多，通常用于：
+  - 查看容器中应用程序的缺省配置。
+  - 构建自定义镜像时（详见后面的论述），在容器内部测试构建命令是否正确。
+- **注意！**不要试图使用这个命令进入容器后，去修改容器的文件和配置。因为这种修改是临时性的，当容器被删除后，修改就丢失了。修改文件和配置有三种方式：
+  - 使用 `-e` 命令选项，通过环境变量，在容器启动时配置应用程序。
+  - 使用 `-v` 命令选项，将宿主机上的文件映射到容器内部，实现动态修改。
+  - 构建自定义镜像。
+
+#### 5.2.2 与正在运行的容器进行交互
+
+```bash
+$ docker exec -it some-mysql /bin/sh
+```
+
+- `exec`：执行运行中容器的内部命令。
+- `-it`：与之交互。
+- `some-mysql`：容器名，或容器ID，可以通过 `docker ps` 命令获得。
+- `/bin/sh`：执行的容器内部命令。
+- **用途：**
+  - 在容器运行时，查看容器内部的一些信息。
+  - 调试自定义镜像。
+
+### 5.3 再讨论一下 `run` 和 `exec` 命令
+
+`run` 和 `exec` 非常类似，只是：`run` 是启动一个新的容器，并运行指定命令；而 `exec` 是在当前容器内部执行命令。从下面这个例子，我们来实战分析一下这两个命令的差异：
+
+**任务：**启动一个容器化的 MySQL 服务，并通过 mysql-client 来连接这个服务。
+
+#### 5.3.1 通过宿主机上的 mysql-client 连接容器化的 MySQL 服务
+
+```bash
+$ docker run -e MYSQL_ROOT_PASSWORD=root -p 3306:3306 -d mysql:5.7
+$ mysql -h 127.0.0.1 -u root -p
+Enter password: root
+```
+
+**分析：**
+
+- 宿主机要访问容器化的 MySQL 服务，则必须将容器服务端口映射到宿主机，因此使用 `-p` 选项来映射端口。
+- 容器和宿主机等同于两台“主机”，宿主机访问容器化 MySQL 服务需通过 `-h` 选项指定主机 IP 地址。
+
+#### 5.3.2 启动另一个容器中的 mysql-client 来连接容器化的 MySQL 服务
+
+```bash
+$ docker network create net-mysql
+$ docker run --name mysqlSrv --network net-mysql -e MYSQL_ROOT_PASSWORD=root -d mysql:5.7
+$ docker run --network net-mysql -it --rm mysql:5.7 mysql -h mysqlSrv -u root -p
+Enter password: root
+```
+
+**分析：**
+
+- 两次执行 `run` 命令，会启动两个容器，相当于两台“主机”。
+- 这两个容器要相互通信，需要在同一个 docker 网络中。
+- 在同一个 docker 网络中，容器之间可以通过主机名（容器名）来相互访问。因此，在运行 mysql-client 的容器中，通过 `-h mysqlSrv` 选项来指定 MySQL 服务主机。
+
+#### 5.3.3 在运行 MySQL 服务的容器内部执行 mysql-client
+
+```bash
+$ docker run --name mysqlSrv -e MYSQL_ROOT_PASSWORD=root -d mysql:5.7
+$ docker exec -it mysqlSrv mysql -u root -p
+Enter password: root
+```
+
+**分析：**
+
+- 在运行 MySQL 服务的容器内部执行 mysql-client，实质上是在同一台”主机“上运行 MySQL 服务，以及 mysql-client，因此无需指定主机。
+
+
+
+## 6. 实战
 
 **任务：**部署一个前后端分离的系统，前端使用 vue-ui，后端使用 node，数据库为 MySQL，并部署 phpMyAdmin 来操作 MySQL。
 
@@ -435,7 +533,7 @@ networks:
 
 **源码目录：**./src
 
-### 5.1 Step 1：构建 PM2 自动部署环境
+### 6.1 Step 1：构建 PM2 自动部署环境
 
 PM2 是守护进程（daemon）管理器，它帮助 node 开发者管理和保持应用程序在线。我们使用 PM2 Docker image 构建一个自动部署 node 应用的环境。
 
@@ -488,19 +586,11 @@ Ecosystem file - step1/api/pm2.json：
 - `"instances": 1`：启动 1 个实例。PM2 自带集群（cluster），可以启动多个实例构成集群，提高服务性能。
 - `"cwd": "/src/api"`：指定工作目录为 `/src/api`，因此启动脚本的完整路径为 `/src/api/index.js`。
 - `"watch": true`：监视工作目录，当工作目录中文件发生改变时，自动重启服务。结合 `"cwd"` 参数，当容器 `/src/api` 目录中文件，也就是宿主机 `./api` 目录中文件发生改变时，将自动重启服务。从而实现了当源码发生改变时，引发自动发布的功能。
-- `"usePolling": true`：容器化的 PM2 无法通过 fsevents 来监视文件的变化，需要使用 polling（轮询）方法。不过，polling 方法比较消耗 CPU 资源，在开发阶段可以这么用，部署的时候，应不使用 watch 功能。
+- `"usePolling": true`：容器化的 PM2 无法通过 fsevents 来监视文件的变化，需要使用 polling（轮询）方法。不过，polling 方法比较消耗 CPU 资源，在开发阶段可以这么用，部署不应使用 watch 功能。
 
-### 5.2 Step 2：构建 Vue 自动部署环境
+### 6.2 Step 2：构建 Vue 自动部署环境
 
 
-
-### 3.5 覆盖自动启动命令
-
-有些情况下，并不需要执行镜像指定的自动启动命令，可以由命令行指定用户命令覆盖自动启动命令。
-
-```bash
-$ docker run -it --rm mysql:5.7 mysql -h 172.17.0.2 -u root -p
-```
 
 
 
