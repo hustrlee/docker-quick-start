@@ -427,7 +427,7 @@ networks:
 
 
 
-## 5. 其它一些需要掌握的命令
+## 5. 其它一些需要知道的事儿
 
 ### 5.1 覆盖自动启动
 
@@ -535,7 +535,7 @@ Enter password: root
 
 ### 6.1 Step 1：构建 PM2 自动部署环境
 
-PM2 是守护进程（daemon）管理器，它帮助 node 开发者管理和保持应用程序在线。我们使用 PM2 Docker image 构建一个自动部署 node 应用的环境。
+PM2 是守护进程（daemon）管理器，它帮助 node 开发者管理和保持应用程序在线。使用 PM2 Docker image 构建一个自动部署 node 应用的环境。
 
 配置文件 step1/docker-compose.yml：
 
@@ -588,7 +588,24 @@ Ecosystem file - step1/api/pm2.json：
 - `"watch": true`：监视工作目录，当工作目录中文件发生改变时，自动重启服务。结合 `"cwd"` 参数，当容器 `/src/api` 目录中文件，也就是宿主机 `./api` 目录中文件发生改变时，将自动重启服务。从而实现了当源码发生改变时，引发自动发布的功能。
 - `"usePolling": true`：容器化的 PM2 无法通过 fsevents 来监视文件的变化，需要使用 polling（轮询）方法。不过，polling 方法比较消耗 CPU 资源，在开发阶段可以这么用，部署不应使用 watch 功能。
 
+#### 6.1.1 监控容器化 PM2 的运行状态
+
+| Command                                         | Description                        |
+| :---------------------------------------------- | ---------------------------------- |
+| `docker exec -it <container-id> pm2 monit`      | 监控每个任务的 CPU/Usage，以及 log |
+| `docker exec -it <container-id> pm2 list`       | 列出所有的任务                     |
+| `docker exec -it <container-id> pm2 show`       | 获取某个任务的详细信息             |
+| `docker exec -it <container-id> pm2 reload all` | 重新载入所有的任务                 |
+
 ### 6.2 Step 2：构建 Vue 自动部署环境
+
+Nginx 是最流行的 Web 服务器和反向代理服务器。使用 Nginx Docker image 来部署 Vue 项目。
+
+配置文件 step2/docker-compose.yml：
+
+```yaml
+
+```
 
 
 

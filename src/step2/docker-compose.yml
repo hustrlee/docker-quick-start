@@ -1,0 +1,29 @@
+version: "3"
+services:
+  pm2:
+    image: keymetrics/pm2:latest-alpine
+    networks:
+      simple-app:
+        aliases:
+          - apiSrv
+    volumes:
+      - ./api:/api
+      - ./conf/pm2.json:/pm2.json
+    expose:
+      - "3000"
+    ports:
+      - "3000:3000"
+    command: ["pm2-runtime", "start", "pm2.json"]
+
+  nginx:
+    image: nginx:alpine
+    networks:
+      - simple-app
+    volumes:
+      - ./web/dist:/web
+      - ./conf/nginx.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - 80:80
+
+networks:
+  simple-app:
