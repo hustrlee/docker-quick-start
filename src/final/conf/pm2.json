@@ -1,8 +1,8 @@
 {
   "name": "apiSrv",
   "script": "index.js",
-  "instances": 2,
-  "cwd": "/src/api",
+  "instances": 1,
+  "cwd": "/api",
   "watch": true,
   "watch_options": {
     "usePolling": true

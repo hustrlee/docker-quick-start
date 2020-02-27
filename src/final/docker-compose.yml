@@ -1,0 +1,57 @@
+version: "3"
+services:
+  nginx:
+    image: nginx:alpine
+    networks:
+      - front-end
+    volumes:
+      - ./web/dist:/web
+      - ./conf/nginx.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - 80:80
+
+  pm2:
+    image: keymetrics/pm2:latest-alpine
+    networks: # api 服务同时连接到两个网络，前后端网络隔离
+      front-end: # 前端网络，用于为前端提供 api 服务
+        aliases:
+          - apiSrv # api 服务，在前端网络中的主机名为：apiSrv
+      back-end: # 后端网络，用于 api 服务连接 MySQL 数据库
+    volumes:
+      - ./api:/api
+      - ./conf/pm2.json:/pm2.json
+    expose:
+      - "3000"
+    command: ["pm2-runtime", "start", "pm2.json"]
+
+  mysql:
+    image: mysql:5.7
+    container_name: mysqldb
+    networks:
+      back-end:
+        aliases:
+          - dbhost # MySQL 在后端网络中的主机名为 dbhost
+    volumes:
+      - "my-data:/var/lib/mysql"
+    environment:
+      MYSQL_ROOT_PASSWORD: "root"
+      TZ: "Asia/Shanghai"
+    ports:
+      - "3306:3306"
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:4.9.4
+    networks:
+      - back-end
+    environment:
+      PMA_HOST: dbhost
+      TZ: "Asia/Shanghai"
+    ports:
+      - "9000:80"
+
+volumes:
+  my-data:
+
+networks:
+  front-end:
+  back-end:

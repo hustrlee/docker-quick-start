@@ -1,0 +1,29 @@
+version: "3"
+
+services:
+  mysql:
+    image: mysql:5.7
+    container_name: mysqldb
+    networks:
+      simple-app:
+        aliases:
+          - dbhost
+    volumes:
+      - "my-data:/var/lib/mysql"
+    environment:
+      MYSQL_ROOT_PASSWORD: "root"
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    networks:
+      - simple-app
+    environment:
+      PMA_HOST: dbhost
+    ports:
+      - "9000:80"
+
+volumes:
+  my-data:
+
+networks:
+  simple-app:

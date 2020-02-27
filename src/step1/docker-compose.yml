@@ -3,9 +3,10 @@ services:
   pm2:
     image: keymetrics/pm2:latest-alpine
     volumes:
-      - ./:/src
-    expose: 
+      - ./api:/api
+      - ./conf/pm2.json:/pm2.json
+    expose:
       - "3000"
-    ports: 
+    ports:
       - "3000:3000"
-    command: ["pm2-runtime", "start", "/src/api/pm2.json"]
+    command: ["pm2-runtime", "start", "pm2.json"]
