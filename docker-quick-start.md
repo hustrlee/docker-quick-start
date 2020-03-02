@@ -30,7 +30,7 @@
 
 但是，Docker 和 VM 有着本质上的不同。下面这张图，完美解释了 Docker 和 VM 之间的区别：
 
-![Docker与虚拟机的区别](./images/difference-between-Docker-and-vm.png)
+![Docker与虚拟机的区别](./images/difference-between-docker-and-vm.png)
 
 - Docker 是操作系统虚拟化；VM 是硬件虚拟化。
 - Docker 虚拟化出来的操作系统和宿主机相同；VM 在虚拟硬件上可以安装任何操作系统。
