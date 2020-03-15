@@ -11,7 +11,7 @@
 > 参考书：
 >
 > - [Docker -- 从入门到实践](https://yeasy.gitbooks.io/Docker_practice/)
-> - [第一本Docker书（修订版）](./ebooks/第一本Docker书 修订版.pdf)
+> - [第一本Docker书（修订版）](./ebooks/%E7%AC%AC%E4%B8%80%E6%9C%ACDOCKER%E4%B9%A6%20%E4%BF%AE%E8%AE%A2%E7%89%88.pdf)
 > - [Docker 官方文档（英语）](https://docs.Docker.com/)
 
 
@@ -30,7 +30,7 @@
 
 但是，Docker 和 VM 有着本质上的不同。下面这张图，完美解释了 Docker 和 VM 之间的区别：
 
-![Docker与虚拟机的区别](./images/difference-between-Docker-and-vm.png)
+![Docker与虚拟机的区别](./images/difference-between-docker-and-vm.png)
 
 - Docker 是操作系统虚拟化；VM 是硬件虚拟化。
 - Docker 虚拟化出来的操作系统和宿主机相同；VM 在虚拟硬件上可以安装任何操作系统。
